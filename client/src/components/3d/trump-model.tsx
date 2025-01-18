@@ -21,7 +21,7 @@ interface ModelProps {
   isSpinning: boolean;
 }
 
-function PatrioticEnvironment() {
+function PatrioticBackground() {
   const [flagTextureUrl, setFlagTextureUrl] = useState<string>('')
 
   useEffect(() => {
@@ -32,74 +32,44 @@ function PatrioticEnvironment() {
   const flagTexture = useMemo(() => {
     if (!flagTextureUrl) return null
     const texture = new THREE.TextureLoader().load(flagTextureUrl)
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping
     return texture
   }, [flagTextureUrl])
 
   if (!flagTexture) return null
 
   return (
-    <>
-      {/* Floor */}
+    <group position={[0, 0, -10]}>
+      {/* Full-screen background */}
+      <mesh>
+        <planeGeometry args={[30, 20]} />
+        <meshBasicMaterial
+          map={flagTexture}
+          transparent={false}
+        />
+      </mesh>
+
+      {/* Floor shadow */}
       <Plane 
-        args={[20, 20]} 
+        args={[30, 30]} 
         rotation={[-Math.PI / 2, 0, 0]} 
-        position={[0, -1.5, 0]}
+        position={[0, -1.5, 5]}
         receiveShadow
       >
         <meshStandardMaterial 
           color="#1a1a1a"
           roughness={0.8}
           metalness={0.2}
+          transparent
+          opacity={0.5}
         />
       </Plane>
 
-      {/* Back wall */}
-      <Plane
-        args={[20, 8]}
-        position={[0, 2, -6]}
-        receiveShadow
-      >
-        <meshStandardMaterial
-          map={flagTexture}
-          emissive="#ffffff"
-          emissiveIntensity={0.1}
-        />
-      </Plane>
-
-      {/* Side walls */}
-      <Plane
-        args={[12, 8]}
-        position={[-10, 2, 0]}
-        rotation={[0, Math.PI / 2, 0]}
-        receiveShadow
-      >
-        <meshStandardMaterial
-          map={flagTexture}
-          emissive="#ffffff"
-          emissiveIntensity={0.1}
-        />
-      </Plane>
-
-      <Plane
-        args={[12, 8]}
-        position={[10, 2, 0]}
-        rotation={[0, -Math.PI / 2, 0]}
-        receiveShadow
-      >
-        <meshStandardMaterial
-          map={flagTexture}
-          emissive="#ffffff"
-          emissiveIntensity={0.1}
-        />
-      </Plane>
-
-      {/* Patriotic lighting setup */}
+      {/* Soft lighting */}
       <spotLight
         position={[4, 4, 2]}
         angle={0.3}
         penumbra={0.2}
-        intensity={1}
+        intensity={0.8}
         color="#ff0000"
         castShadow
       />
@@ -107,7 +77,7 @@ function PatrioticEnvironment() {
         position={[-4, 4, 2]}
         angle={0.3}
         penumbra={0.2}
-        intensity={1}
+        intensity={0.8}
         color="#0000ff"
         castShadow
       />
@@ -115,11 +85,11 @@ function PatrioticEnvironment() {
         position={[0, 4, -2]}
         angle={0.3}
         penumbra={0.2}
-        intensity={1.5}
+        intensity={1}
         color="#ffffff"
         castShadow
       />
-    </>
+    </group>
   )
 }
 
@@ -229,10 +199,8 @@ export function TrumpModel() {
           preserveDrawingBuffer: true
         }}
       >
-        <color attach="background" args={[0x1a1a1a]} />
-
         <Suspense fallback={null}>
-          <PatrioticEnvironment />
+          <PatrioticBackground />
           <Model isSpinning={isSpinning} />
 
           <Environment
@@ -286,23 +254,6 @@ export function TrumpModel() {
           dampingFactor={0.05}
           rotateSpeed={0.5}
         />
-        <directionalLight
-          castShadow
-          position={[2, 4, 3]}
-          intensity={2}
-          shadow-mapSize={[2048, 2048]}
-          shadow-bias={-0.0001}
-        />
-        <directionalLight
-          position={[-3, 2, -2]}
-          intensity={1}
-        />
-        <directionalLight
-          position={[3, -1, -2]}
-          intensity={0.5}
-          color="#4444ff"
-        />
-        <ambientLight intensity={0.3} />
       </Canvas>
       <ControlPanel onSpin={handleSpin} />
     </div>
