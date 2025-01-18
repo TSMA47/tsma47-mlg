@@ -63,25 +63,31 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <MessageList messages={messages} />
+    <div className="fixed bottom-8 right-8 w-96 max-h-[500px] bg-gradient-to-br from-blue-900/90 to-purple-900/90 rounded-lg shadow-2xl border border-blue-500/30 backdrop-blur">
+      <div className="flex flex-col h-[400px]">
+        <div className="flex-1 overflow-y-auto p-4">
+          <MessageList messages={messages} />
+        </div>
 
-      <Card className="mt-auto p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            disabled={chatMutation.isPending}
-          />
-          <Button 
-            type="submit" 
-            disabled={chatMutation.isPending}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
-      </Card>
+        <Card className="border-t border-blue-500/30 bg-transparent">
+          <form onSubmit={handleSubmit} className="flex gap-2 p-4">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              disabled={chatMutation.isPending}
+              className="bg-white/10 border-blue-500/30 text-white placeholder:text-blue-200/50"
+            />
+            <Button 
+              type="submit" 
+              disabled={chatMutation.isPending}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </form>
+        </Card>
+      </div>
     </div>
   )
 }
