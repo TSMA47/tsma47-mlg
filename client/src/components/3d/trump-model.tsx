@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, extend, useFrame } from '@react-three/fiber'
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { 
   Environment, 
@@ -7,29 +7,35 @@ import {
   RandomizedLight,
   BakeShadows,
   useProgress,
+  Html,
 } from '@react-three/drei'
 import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
 import { useToast } from "@/hooks/use-toast"
 import { SocialLinks } from "@/components/social/social-links"
 import * as THREE from 'three'
-import type { Group, Object3D } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 
-// Loading screen component
+// Extend THREE.Group for R3F
+extend({ Group: THREE.Group })
+
+// Global model cache
+const modelCache = new Map<string, THREE.Group>()
+
+// Loading screen component with progress
 function LoadingScreen() {
   const { progress } = useProgress()
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/90">
-      <div className="text-center">
+    <Html center>
+      <div className="text-center bg-black/80 p-4 rounded-lg backdrop-blur-sm">
         <div className="w-32 h-1 bg-gray-800 rounded-full overflow-hidden">
           <div 
             className="h-full bg-blue-500 transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="mt-2 text-sm text-gray-400">{progress.toFixed(0)}% loaded</p>
+        <p className="mt-2 text-sm text-gray-400">Loading Model: {progress.toFixed(0)}%</p>
       </div>
-    </div>
+    </Html>
   )
 }
 
@@ -38,27 +44,28 @@ interface ModelProps {
 }
 
 function Model({ isSpinning }: ModelProps) {
-  const [model, setModel] = useState<Group | null>(null)
-  const modelRef = useRef<Group>(null)
+  const groupRef = useRef<THREE.Group>(null)
+  const [model, setModel] = useState<THREE.Group | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
     const loader = new FBXLoader()
-    const modelCache = new Map<string, Group>()
+    const modelPath = '/trump-skibidi-scientist-mech/source/Scientist Trump.fbx'
 
     const loadModel = async () => {
       try {
         // Check cache first
-        const cachedModel = modelCache.get('/trump-skibidi-scientist-mech/source/Scientist Trump.fbx')
-        if (cachedModel) {
-          setModel(cachedModel.clone())
+        if (modelCache.has(modelPath)) {
+          console.log('Using cached model')
+          setModel(modelCache.get(modelPath)!.clone())
           return
         }
 
-        const fbx = await loader.loadAsync('/trump-skibidi-scientist-mech/source/Scientist Trump.fbx')
+        console.log('Loading model from disk')
+        const fbx = await loader.loadAsync(modelPath)
 
-        // Optimize materials and geometries
-        fbx.traverse((obj: Object3D) => {
+        // Optimize the model
+        fbx.traverse((obj) => {
           if (obj instanceof THREE.Mesh) {
             // Enable frustum culling
             obj.frustumCulled = true
@@ -69,7 +76,7 @@ function Model({ isSpinning }: ModelProps) {
               obj.geometry.computeBoundingBox()
             }
 
-            // Set up materials for better performance
+            // Set up optimized materials
             if (obj.material instanceof THREE.MeshStandardMaterial) {
               if (obj.name.toLowerCase().includes('metal') || obj.name.toLowerCase().includes('mech')) {
                 obj.material.metalness = 0.9
@@ -88,18 +95,20 @@ function Model({ isSpinning }: ModelProps) {
               }
               obj.material.needsUpdate = true
             }
+
+            // Optimize shadows
             obj.castShadow = true
             obj.receiveShadow = true
           }
         })
 
-        // Optimize scale and position
+        // Scale and position
         fbx.scale.set(0.003, 0.003, 0.003)
         fbx.position.set(0, -1, 0)
         fbx.rotation.set(0, Math.PI / 4, 0)
 
-        // Cache the optimized model
-        modelCache.set('/trump-skibidi-scientist-mech/source/Scientist Trump.fbx', fbx.clone())
+        // Cache the model
+        modelCache.set(modelPath, fbx.clone())
         setModel(fbx)
       } catch (error) {
         console.error('Error loading model:', error)
@@ -115,22 +124,34 @@ function Model({ isSpinning }: ModelProps) {
 
     // Cleanup
     return () => {
-      modelCache.clear()
+      if (model) {
+        model.traverse((obj) => {
+          if (obj instanceof THREE.Mesh) {
+            obj.geometry.dispose()
+            if (Array.isArray(obj.material)) {
+              obj.material.forEach(material => material.dispose())
+            } else {
+              obj.material.dispose()
+            }
+          }
+        })
+      }
     }
   }, [toast])
 
   useFrame((_, delta) => {
-    if (isSpinning && modelRef.current) {
-      modelRef.current.rotation.y += delta * 2
+    if (isSpinning && groupRef.current) {
+      groupRef.current.rotation.y += delta * 2
     }
   })
 
-  return model ? (
-    <primitive 
-      ref={modelRef}
-      object={model}
-    />
-  ) : null
+  if (!model) return null
+
+  return (
+    <group ref={groupRef}>
+      <primitive object={model} />
+    </group>
+  )
 }
 
 export function TrumpModel() {
@@ -139,7 +160,6 @@ export function TrumpModel() {
 
   return (
     <div ref={containerRef} className="w-full h-full relative">
-      {/* Social Links Overlay */}
       <div className="absolute top-0 right-0 z-10 p-2">
         <SocialLinks />
       </div>
@@ -153,12 +173,14 @@ export function TrumpModel() {
           far: 100 
         }}
         gl={{ 
-          antialias: false, // Disable antialiasing for better performance
+          antialias: false,  // Disable antialiasing for better performance
           alpha: true,
           powerPreference: "high-performance",
-          preserveDrawingBuffer: true
+          preserveDrawingBuffer: true,
+          logarithmicDepthBuffer: true
         }}
-        performance={{ min: 0.5 }} // Allow frame rate to drop for better loading
+        performance={{ min: 0.5 }}  // Allow frame rate to drop for better performance
+        dpr={[1, 2]}  // Limit pixel ratio for better performance
       >
         <color attach="background" args={[0x1a1a1a]} />
 
@@ -210,14 +232,13 @@ export function TrumpModel() {
           makeDefault
           enablePan={false}
           enableZoom={true}
-          domElement={containerRef.current || undefined}
         />
 
         <directionalLight
           castShadow
           position={[2, 4, 3]}
           intensity={2}
-          shadow-mapSize={[1024, 1024]} // Reduced shadow map size for better performance
+          shadow-mapSize={[1024, 1024]}
         />
         <directionalLight
           position={[-3, 2, -2]}
