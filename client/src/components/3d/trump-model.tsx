@@ -20,10 +20,10 @@ export function TrumpModel() {
     const camera = new THREE.PerspectiveCamera(
       60,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
-      0.1,
-      1000
+      0.001,
+      10
     )
-    camera.position.set(0, 0.5, 2)
+    camera.position.set(0, 0.005, 0.02)
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({ 
@@ -44,23 +44,23 @@ export function TrumpModel() {
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.05
-    controls.minDistance = 1
-    controls.maxDistance = 4
-    controls.target.set(0, 0.3, 0)
+    controls.minDistance = 0.01
+    controls.maxDistance = 0.04
+    controls.target.set(0, 0.003, 0)
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
     scene.add(ambientLight)
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-    directionalLight.position.set(5, 5, 5)
+    directionalLight.position.set(0.05, 0.05, 0.05)
     directionalLight.castShadow = true
     directionalLight.shadow.mapSize.width = 2048
     directionalLight.shadow.mapSize.height = 2048
     scene.add(directionalLight)
 
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.3)
-    fillLight.position.set(-5, 0, -5)
+    fillLight.position.set(-0.05, 0, -0.05)
     scene.add(fillLight)
 
     // Texture loader
@@ -79,7 +79,7 @@ export function TrumpModel() {
       '/source/Scientist Trump.fbx',
       (fbx) => {
         // Scale and position the model
-        fbx.scale.setScalar(0.003) // Reduced scale
+        fbx.scale.setScalar(0.00003) // Much smaller scale
         fbx.position.y = 0
         fbx.rotation.y = Math.PI / 4
 
@@ -117,7 +117,7 @@ export function TrumpModel() {
     )
 
     // Add a ground plane
-    const groundGeometry = new THREE.PlaneGeometry(4, 4)
+    const groundGeometry = new THREE.PlaneGeometry(0.04, 0.04)
     const groundMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xeeeeee,
       roughness: 0.8,
