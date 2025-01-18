@@ -2,8 +2,9 @@ import { useToast } from "@/hooks/use-toast";
 
 async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
   const VOICE_ID = "TxGEqnHWrfWFTfGW9XjX"; // Premium Trump voice model ID
+  const API_KEY = import.meta.env.VITE_ELEVEN_LABS_API_KEY;
 
-  if (!import.meta.env.VITE_ELEVEN_LABS_API_KEY) {
+  if (!API_KEY) {
     throw new Error("ElevenLabs API key not found in environment variables");
   }
 
@@ -15,7 +16,7 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "xi-api-key": import.meta.env.VITE_ELEVEN_LABS_API_KEY,
+          "xi-api-key": API_KEY,
         },
         body: JSON.stringify({
           text,
@@ -33,7 +34,7 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
     if (!response.ok) {
       const errorData = await response.text();
       console.error("ElevenLabs API error:", errorData);
-      throw new Error(`Voice generation failed: ${errorData}`);
+      throw new Error(`Voice generation failed: ${response.status} - ${errorData}`);
     }
 
     console.log("Voice generated successfully");
@@ -54,6 +55,12 @@ export async function speak(text: string) {
     const audioUrl = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioUrl);
 
+    // Add error handling for audio playback
+    audio.onerror = (e) => {
+      console.error("Audio playback error:", e);
+      throw new Error("Failed to play generated audio");
+    };
+
     await audio.play();
 
     // Clean up the URL after playing
@@ -61,8 +68,7 @@ export async function speak(text: string) {
       URL.revokeObjectURL(audioUrl);
     };
   } catch (error) {
-    console.error("Failed to generate Trump voice:", error);
-    // Only fallback to browser TTS if specifically requested
-    throw error; // Let the chat interface handle the error
+    console.error("Failed to generate or play Trump voice:", error);
+    throw error;
   }
 }
