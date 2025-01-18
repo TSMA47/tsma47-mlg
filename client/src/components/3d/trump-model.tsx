@@ -62,9 +62,8 @@ function PatrioticEnvironment() {
       >
         <meshStandardMaterial
           map={flagTexture}
-          side={THREE.DoubleSide}
           emissive="#ffffff"
-          emissiveIntensity={0.2}
+          emissiveIntensity={0.1}
         />
       </Plane>
 
@@ -77,9 +76,8 @@ function PatrioticEnvironment() {
       >
         <meshStandardMaterial
           map={flagTexture}
-          side={THREE.DoubleSide}
           emissive="#ffffff"
-          emissiveIntensity={0.2}
+          emissiveIntensity={0.1}
         />
       </Plane>
 
@@ -91,9 +89,8 @@ function PatrioticEnvironment() {
       >
         <meshStandardMaterial
           map={flagTexture}
-          side={THREE.DoubleSide}
           emissive="#ffffff"
-          emissiveIntensity={0.2}
+          emissiveIntensity={0.1}
         />
       </Plane>
 
@@ -102,7 +99,7 @@ function PatrioticEnvironment() {
         position={[4, 4, 2]}
         angle={0.3}
         penumbra={0.2}
-        intensity={1.5}
+        intensity={1}
         color="#ff0000"
         castShadow
       />
@@ -110,7 +107,7 @@ function PatrioticEnvironment() {
         position={[-4, 4, 2]}
         angle={0.3}
         penumbra={0.2}
-        intensity={1.5}
+        intensity={1}
         color="#0000ff"
         castShadow
       />
@@ -118,7 +115,7 @@ function PatrioticEnvironment() {
         position={[0, 4, -2]}
         angle={0.3}
         penumbra={0.2}
-        intensity={2}
+        intensity={1.5}
         color="#ffffff"
         castShadow
       />
