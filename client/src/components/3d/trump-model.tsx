@@ -33,7 +33,6 @@ function PatrioticEnvironment() {
     if (!flagTextureUrl) return null
     const texture = new THREE.TextureLoader().load(flagTextureUrl)
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(1, 1) 
     return texture
   }, [flagTextureUrl])
 
@@ -41,6 +40,7 @@ function PatrioticEnvironment() {
 
   return (
     <>
+      {/* Floor */}
       <Plane 
         args={[20, 20]} 
         rotation={[-Math.PI / 2, 0, 0]} 
@@ -54,47 +54,50 @@ function PatrioticEnvironment() {
         />
       </Plane>
 
-      {[-6, -2, 2, 6].map((x, i) => (
-        <group key={i} position={[x, 2, -6]}>
-          <mesh castShadow>
-            <planeGeometry args={[3, 2]} />
-            <meshStandardMaterial
-              map={flagTexture}
-              side={THREE.DoubleSide}
-              emissive="#ffffff"
-              emissiveIntensity={0.2}
-            />
-          </mesh>
-        </group>
-      ))}
+      {/* Back wall */}
+      <Plane
+        args={[20, 8]}
+        position={[0, 2, -6]}
+        receiveShadow
+      >
+        <meshStandardMaterial
+          map={flagTexture}
+          side={THREE.DoubleSide}
+          emissive="#ffffff"
+          emissiveIntensity={0.2}
+        />
+      </Plane>
 
-      {[-4, 0, 4].map((z, i) => (
-        <>
-          <group key={`left-${i}`} position={[-8, 2, z]} rotation={[0, Math.PI / 2, 0]}>
-            <mesh castShadow>
-              <planeGeometry args={[3, 2]} />
-              <meshStandardMaterial
-                map={flagTexture}
-                side={THREE.DoubleSide}
-                emissive="#ffffff"
-                emissiveIntensity={0.2}
-              />
-            </mesh>
-          </group>
-          <group key={`right-${i}`} position={[8, 2, z]} rotation={[0, -Math.PI / 2, 0]}>
-            <mesh castShadow>
-              <planeGeometry args={[3, 2]} />
-              <meshStandardMaterial
-                map={flagTexture}
-                side={THREE.DoubleSide}
-                emissive="#ffffff"
-                emissiveIntensity={0.2}
-              />
-            </mesh>
-          </group>
-        </>
-      ))}
+      {/* Side walls */}
+      <Plane
+        args={[12, 8]}
+        position={[-10, 2, 0]}
+        rotation={[0, Math.PI / 2, 0]}
+        receiveShadow
+      >
+        <meshStandardMaterial
+          map={flagTexture}
+          side={THREE.DoubleSide}
+          emissive="#ffffff"
+          emissiveIntensity={0.2}
+        />
+      </Plane>
 
+      <Plane
+        args={[12, 8]}
+        position={[10, 2, 0]}
+        rotation={[0, -Math.PI / 2, 0]}
+        receiveShadow
+      >
+        <meshStandardMaterial
+          map={flagTexture}
+          side={THREE.DoubleSide}
+          emissive="#ffffff"
+          emissiveIntensity={0.2}
+        />
+      </Plane>
+
+      {/* Patriotic lighting setup */}
       <spotLight
         position={[4, 4, 2]}
         angle={0.3}
