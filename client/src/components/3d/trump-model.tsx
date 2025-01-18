@@ -48,22 +48,6 @@ function PatrioticBackground() {
         />
       </mesh>
 
-      {/* Floor shadow */}
-      <Plane 
-        args={[30, 30]} 
-        rotation={[-Math.PI / 2, 0, 0]} 
-        position={[0, -1.5, 5]}
-        receiveShadow
-      >
-        <meshStandardMaterial 
-          color="#1a1a1a"
-          roughness={0.8}
-          metalness={0.2}
-          transparent
-          opacity={0.5}
-        />
-      </Plane>
-
       {/* Soft lighting */}
       <spotLight
         position={[4, 4, 2]}
