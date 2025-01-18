@@ -20,10 +20,10 @@ export function TrumpModel() {
     const camera = new THREE.PerspectiveCamera(
       60,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
-      0.0001,
-      1
+      0.00001,
+      0.1
     )
-    camera.position.set(0, 0.0005, 0.002)
+    camera.position.set(0, 0.00005, 0.0002)
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({ 
@@ -44,23 +44,23 @@ export function TrumpModel() {
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.05
-    controls.minDistance = 0.001
-    controls.maxDistance = 0.004
-    controls.target.set(0, 0.0003, 0)
+    controls.minDistance = 0.0001
+    controls.maxDistance = 0.0004
+    controls.target.set(0, 0.00003, 0)
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
     scene.add(ambientLight)
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-    directionalLight.position.set(0.005, 0.005, 0.005)
+    directionalLight.position.set(0.0005, 0.0005, 0.0005)
     directionalLight.castShadow = true
     directionalLight.shadow.mapSize.width = 2048
     directionalLight.shadow.mapSize.height = 2048
     scene.add(directionalLight)
 
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.3)
-    fillLight.position.set(-0.005, 0, -0.005)
+    fillLight.position.set(-0.0005, 0, -0.0005)
     scene.add(fillLight)
 
     // Texture loader
@@ -79,7 +79,7 @@ export function TrumpModel() {
       '/source/Scientist Trump.fbx',
       (fbx) => {
         // Scale and position the model
-        fbx.scale.setScalar(0.0000003) // Much much smaller scale
+        fbx.scale.setScalar(0.00000003) // Much much smaller scale
         fbx.position.y = 0
         fbx.rotation.y = Math.PI / 4
 
@@ -117,7 +117,7 @@ export function TrumpModel() {
     )
 
     // Add a ground plane
-    const groundGeometry = new THREE.PlaneGeometry(0.004, 0.004)
+    const groundGeometry = new THREE.PlaneGeometry(0.0004, 0.0004)
     const groundMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xeeeeee,
       roughness: 0.8,
