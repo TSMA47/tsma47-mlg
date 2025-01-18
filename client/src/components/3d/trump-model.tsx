@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Suspense, useEffect, useState, useRef } from 'react'
+import { Suspense, useEffect, useState, useRef, useMemo } from 'react'
 import { 
   Environment, 
   OrbitControls, 
@@ -7,6 +7,7 @@ import {
   RandomizedLight,
   ContactShadows,
   BakeShadows,
+  Plane,
 } from '@react-three/drei'
 import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
 import { useToast } from "@/hooks/use-toast"
@@ -14,9 +15,83 @@ import * as THREE from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { createFlagTexture } from '@/lib/generate-flag-texture'
 
 interface ModelProps {
   isSpinning: boolean;
+}
+
+function PatrioticEnvironment() {
+  const [flagTextureUrl, setFlagTextureUrl] = useState<string>('')
+
+  useEffect(() => {
+    const textureUrl = createFlagTexture()
+    setFlagTextureUrl(textureUrl)
+  }, [])
+
+  const flagTexture = useMemo(() => {
+    if (!flagTextureUrl) return null
+    const texture = new THREE.TextureLoader().load(flagTextureUrl)
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(4, 4)
+    return texture
+  }, [flagTextureUrl])
+
+  if (!flagTexture) return null
+
+  return (
+    <>
+      <Plane 
+        args={[20, 20]} 
+        rotation={[-Math.PI / 2, 0, 0]} 
+        position={[0, -1.5, 0]}
+        receiveShadow
+      >
+        <meshStandardMaterial 
+          map={flagTexture}
+          roughness={0.8}
+          metalness={0.2}
+        />
+      </Plane>
+
+      {[-4, 0, 4].map((x, i) => (
+        <group key={i} position={[x, 2, -4]}>
+          <mesh castShadow>
+            <planeGeometry args={[2, 1]} />
+            <meshStandardMaterial
+              map={flagTexture}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </group>
+      ))}
+
+      <spotLight
+        position={[4, 4, 2]}
+        angle={0.3}
+        penumbra={0.2}
+        intensity={1.5}
+        color="#ff0000"
+        castShadow
+      />
+      <spotLight
+        position={[-4, 4, 2]}
+        angle={0.3}
+        penumbra={0.2}
+        intensity={1.5}
+        color="#0000ff"
+        castShadow
+      />
+      <spotLight
+        position={[0, 4, -2]}
+        angle={0.3}
+        penumbra={0.2}
+        intensity={2}
+        color="#ffffff"
+        castShadow
+      />
+    </>
+  )
 }
 
 function Model({ isSpinning }: ModelProps) {
@@ -31,11 +106,9 @@ function Model({ isSpinning }: ModelProps) {
       (fbx) => {
         fbx.traverse((obj: any) => {
           if (obj.isMesh) {
-            // Enable shadows for all meshes
             obj.castShadow = true
             obj.receiveShadow = true
 
-            // Enhance metallic parts with chrome-like finish
             if (obj.name.toLowerCase().includes('metal') || obj.name.toLowerCase().includes('mech')) {
               obj.material.metalness = 0.9
               obj.material.roughness = 0.1
@@ -43,7 +116,6 @@ function Model({ isSpinning }: ModelProps) {
               obj.material.needsUpdate = true
             }
 
-            // Glass or transparent parts
             if (obj.name.toLowerCase().includes('glass') || obj.name.toLowerCase().includes('lens')) {
               obj.material.transparent = true
               obj.material.opacity = 0.9
@@ -53,7 +125,6 @@ function Model({ isSpinning }: ModelProps) {
               obj.material.needsUpdate = true
             }
 
-            // Face and skin materials
             if (obj.name.toLowerCase().includes('face') || obj.name.toLowerCase().includes('skin')) {
               obj.material.metalness = 0.1
               obj.material.roughness = 0.8
@@ -63,7 +134,6 @@ function Model({ isSpinning }: ModelProps) {
           }
         })
 
-        // Add the model to the scene
         fbx.scale.set(0.003, 0.003, 0.003)
         fbx.position.set(0, -1, 0)
         fbx.rotation.set(0, Math.PI / 4, 0)
@@ -83,10 +153,9 @@ function Model({ isSpinning }: ModelProps) {
     )
   }, [toast])
 
-  // Animation loop for spinning
   useFrame((_, delta) => {
     if (isSpinning && modelRef.current) {
-      modelRef.current.rotation.y += delta * 2 // Adjust speed by changing multiplier
+      modelRef.current.rotation.y += delta * 2
     }
   })
 
@@ -134,16 +203,15 @@ export function TrumpModel() {
         <color attach="background" args={[0x1a1a1a]} />
 
         <Suspense fallback={null}>
+          <PatrioticEnvironment />
           <Model isSpinning={isSpinning} />
 
-          {/* High-quality environment lighting */}
           <Environment
             preset="studio"
             background={false}
             blur={0.5}
           />
 
-          {/* Ground shadows for better grounding */}
           <ContactShadows
             position={[0, -1.5, 0]}
             scale={10}
@@ -152,7 +220,6 @@ export function TrumpModel() {
             opacity={0.6}
           />
 
-          {/* Accumulative shadows for realism */}
           <AccumulativeShadows
             position={[0, -1.5, 0]}
             scale={10}
@@ -170,7 +237,6 @@ export function TrumpModel() {
             />
           </AccumulativeShadows>
 
-          {/* Post-processing effects */}
           <EffectComposer>
             <Bloom
               intensity={1}
@@ -183,7 +249,6 @@ export function TrumpModel() {
           <BakeShadows />
         </Suspense>
 
-        {/* Camera controls */}
         <OrbitControls 
           minDistance={3}
           maxDistance={15}
@@ -192,8 +257,6 @@ export function TrumpModel() {
           dampingFactor={0.05}
           rotateSpeed={0.5}
         />
-
-        {/* Three-point lighting setup */}
         <directionalLight
           castShadow
           position={[2, 4, 3]}
