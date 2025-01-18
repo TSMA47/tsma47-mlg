@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { MessageList } from "./message-list"
 import { speak } from "@/lib/tts"
-import { Send, Mic } from "lucide-react"
+import { Send } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Message {
@@ -28,10 +28,20 @@ export function ChatInterface() {
       if (!response.ok) throw new Error("Failed to send message")
       return response.json()
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const newMessage: Message = { role: "assistant", content: data.response }
       setMessages(prev => [...prev, newMessage])
-      speak(data.response)
+      try {
+        await speak(data.response)
+      } catch (error: any) {
+        console.error("Voice generation error:", error)
+        toast({
+          title: "Voice Generation Failed",
+          description: error.message || "Failed to generate Trump's voice. Using fallback voice instead.",
+          variant: "destructive",
+          duration: 3000
+        })
+      }
     },
     onError: () => {
       toast({
@@ -55,7 +65,7 @@ export function ChatInterface() {
   return (
     <div className="flex flex-col h-full">
       <MessageList messages={messages} />
-      
+
       <Card className="mt-auto p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
