@@ -33,7 +33,7 @@ function PatrioticEnvironment() {
     if (!flagTextureUrl) return null
     const texture = new THREE.TextureLoader().load(flagTextureUrl)
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(4, 4)
+    texture.repeat.set(1, 1) 
     return texture
   }, [flagTextureUrl])
 
@@ -48,22 +48,51 @@ function PatrioticEnvironment() {
         receiveShadow
       >
         <meshStandardMaterial 
-          map={flagTexture}
+          color="#1a1a1a"
           roughness={0.8}
           metalness={0.2}
         />
       </Plane>
 
-      {[-4, 0, 4].map((x, i) => (
-        <group key={i} position={[x, 2, -4]}>
+      {[-6, -2, 2, 6].map((x, i) => (
+        <group key={i} position={[x, 2, -6]}>
           <mesh castShadow>
-            <planeGeometry args={[2, 1]} />
+            <planeGeometry args={[3, 2]} />
             <meshStandardMaterial
               map={flagTexture}
               side={THREE.DoubleSide}
+              emissive="#ffffff"
+              emissiveIntensity={0.2}
             />
           </mesh>
         </group>
+      ))}
+
+      {[-4, 0, 4].map((z, i) => (
+        <>
+          <group key={`left-${i}`} position={[-8, 2, z]} rotation={[0, Math.PI / 2, 0]}>
+            <mesh castShadow>
+              <planeGeometry args={[3, 2]} />
+              <meshStandardMaterial
+                map={flagTexture}
+                side={THREE.DoubleSide}
+                emissive="#ffffff"
+                emissiveIntensity={0.2}
+              />
+            </mesh>
+          </group>
+          <group key={`right-${i}`} position={[8, 2, z]} rotation={[0, -Math.PI / 2, 0]}>
+            <mesh castShadow>
+              <planeGeometry args={[3, 2]} />
+              <meshStandardMaterial
+                map={flagTexture}
+                side={THREE.DoubleSide}
+                emissive="#ffffff"
+                emissiveIntensity={0.2}
+              />
+            </mesh>
+          </group>
+        </>
       ))}
 
       <spotLight
