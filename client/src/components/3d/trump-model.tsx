@@ -3,7 +3,6 @@ import { Suspense, useEffect } from 'react'
 import { 
   Environment, 
   OrbitControls, 
-  useGLTF,
   AccumulativeShadows,
   RandomizedLight,
   ContactShadows,
@@ -11,55 +10,72 @@ import {
 } from '@react-three/drei'
 import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
 import { useToast } from "@/hooks/use-toast"
+import * as THREE from 'three'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 
 function Model() {
-  const { scene } = useGLTF('/trump-skibidi-scientist-mech/source/Scientist Trump.fbx')
   const { toast } = useToast()
 
   useEffect(() => {
-    scene.traverse((obj: any) => {
-      if (obj.isMesh) {
-        // Enable shadows for all meshes
-        obj.castShadow = true
-        obj.receiveShadow = true
+    const loader = new FBXLoader()
+    loader.load(
+      '/trump-skibidi-scientist-mech/source/Scientist Trump.fbx',
+      (fbx) => {
+        fbx.traverse((obj: any) => {
+          if (obj.isMesh) {
+            // Enable shadows for all meshes
+            obj.castShadow = true
+            obj.receiveShadow = true
 
-        // Enhance metallic parts with chrome-like finish
-        if (obj.name.toLowerCase().includes('metal') || obj.name.toLowerCase().includes('mech')) {
-          obj.material.metalness = 0.9
-          obj.material.roughness = 0.1
-          obj.material.envMapIntensity = 2.5
-          obj.material.needsUpdate = true
-        }
+            // Enhance metallic parts with chrome-like finish
+            if (obj.name.toLowerCase().includes('metal') || obj.name.toLowerCase().includes('mech')) {
+              obj.material.metalness = 0.9
+              obj.material.roughness = 0.1
+              obj.material.envMapIntensity = 2.5
+              obj.material.needsUpdate = true
+            }
 
-        // Glass or transparent parts
-        if (obj.name.toLowerCase().includes('glass') || obj.name.toLowerCase().includes('lens')) {
-          obj.material.transparent = true
-          obj.material.opacity = 0.9
-          obj.material.metalness = 1
-          obj.material.roughness = 0
-          obj.material.envMapIntensity = 3
-          obj.material.needsUpdate = true
-        }
+            // Glass or transparent parts
+            if (obj.name.toLowerCase().includes('glass') || obj.name.toLowerCase().includes('lens')) {
+              obj.material.transparent = true
+              obj.material.opacity = 0.9
+              obj.material.metalness = 1
+              obj.material.roughness = 0
+              obj.material.envMapIntensity = 3
+              obj.material.needsUpdate = true
+            }
 
-        // Face and skin materials
-        if (obj.name.toLowerCase().includes('face') || obj.name.toLowerCase().includes('skin')) {
-          obj.material.metalness = 0.1
-          obj.material.roughness = 0.8
-          obj.material.envMapIntensity = 0.5
-          obj.material.needsUpdate = true
-        }
+            // Face and skin materials
+            if (obj.name.toLowerCase().includes('face') || obj.name.toLowerCase().includes('skin')) {
+              obj.material.metalness = 0.1
+              obj.material.roughness = 0.8
+              obj.material.envMapIntensity = 0.5
+              obj.material.needsUpdate = true
+            }
+          }
+        })
+
+        // Add the model to the scene
+        fbx.scale.set(0.003, 0.003, 0.003)
+        fbx.position.set(0, -1, 0)
+        fbx.rotation.set(0, Math.PI / 4, 0)
+
+      },
+      (progress) => {
+        console.log('Loading progress:', (progress.loaded / progress.total) * 100, '%')
+      },
+      (error) => {
+        console.error('Error loading model:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load 3D model",
+          variant: "destructive"
+        })
       }
-    })
-  }, [scene])
+    )
+  }, [toast])
 
-  return (
-    <primitive 
-      object={scene} 
-      scale={0.003} 
-      position={[0, -1, 0]} 
-      rotation={[0, Math.PI / 4, 0]} 
-    />
-  )
+  return null 
 }
 
 export function TrumpModel() {
