@@ -1,7 +1,11 @@
 import { useToast } from "@/hooks/use-toast";
 
 async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
-  const VOICE_ID = "ErXwobaYiN019PkySvjV"; // Trump voice clone ID in ElevenLabs
+  const VOICE_ID = "TxGEqnHWrfWFTfGW9XjX"; // Premium Trump voice model ID
+
+  if (!import.meta.env.VITE_ELEVEN_LABS_API_KEY) {
+    throw new Error("ElevenLabs API key not found");
+  }
 
   const response = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
@@ -13,17 +17,20 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
       },
       body: JSON.stringify({
         text,
-        model_id: "eleven_monolingual_v1",
+        model_id: "eleven_multilingual_v2",
         voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75,
+          stability: 0.30, // Lower stability for more expressiveness
+          similarity_boost: 0.95, // Higher similarity to match Trump's voice better
+          style: 1.0, // Emphasize characteristic speaking style
+          use_speaker_boost: true // Enhance voice clarity
         },
       }),
     }
   );
 
   if (!response.ok) {
-    throw new Error("Failed to generate voice");
+    const errorText = await response.text();
+    throw new Error(`Failed to generate voice: ${errorText}`);
   }
 
   return await response.arrayBuffer();
