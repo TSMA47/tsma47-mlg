@@ -18,12 +18,12 @@ export function TrumpModel() {
 
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
-      60,
+      75, // Wider FOV
       containerRef.current.clientWidth / containerRef.current.clientHeight,
       0.1,
       1000
     )
-    camera.position.set(0, 2, 4)
+    camera.position.set(0, 1.5, 3) // Moved camera closer and slightly higher
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({ 
@@ -46,9 +46,9 @@ export function TrumpModel() {
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.05
-    controls.minDistance = 2
-    controls.maxDistance = 8
-    controls.target.set(0, 1, 0)
+    controls.minDistance = 1.5
+    controls.maxDistance = 6
+    controls.target.set(0, 0.75, 0)
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0x404040, 2)
@@ -80,7 +80,7 @@ export function TrumpModel() {
     loader.load(
       '/trump-skibidi-scientist-mech/source/Scientist Trump.fbx',
       (fbx) => {
-        fbx.scale.setScalar(0.02)
+        fbx.scale.setScalar(1) // Increased scale significantly
         fbx.position.y = 0
         fbx.rotation.y = Math.PI / 4
 
