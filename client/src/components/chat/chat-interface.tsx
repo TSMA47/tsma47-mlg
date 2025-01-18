@@ -63,18 +63,19 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-[300px]">
+    <div className="flex flex-col h-[300px] bg-gray-900/95 rounded-lg">
       <div className="flex-1 overflow-y-auto p-4">
         <MessageList messages={messages} />
       </div>
 
-      <Card className="mt-auto border-t">
+      <Card className="mt-auto border-t border-gray-800 bg-gray-900">
         <form onSubmit={handleSubmit} className="flex gap-2 p-4">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             disabled={chatMutation.isPending}
+            className="bg-gray-800 border-gray-700"
           />
           <Button 
             type="submit" 
