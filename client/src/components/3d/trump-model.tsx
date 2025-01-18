@@ -18,12 +18,12 @@ export function TrumpModel() {
 
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
-      75,
+      60,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
       0.1,
       1000
     )
-    camera.position.set(0, 1.5, 3)
+    camera.position.set(0, 0.5, 2)
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({ 
@@ -44,9 +44,9 @@ export function TrumpModel() {
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.05
-    controls.minDistance = 2
-    controls.maxDistance = 10
-    controls.target.set(0, 1, 0)
+    controls.minDistance = 1
+    controls.maxDistance = 4
+    controls.target.set(0, 0.3, 0)
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
@@ -79,7 +79,7 @@ export function TrumpModel() {
       '/source/Scientist Trump.fbx',
       (fbx) => {
         // Scale and position the model
-        fbx.scale.setScalar(0.01)
+        fbx.scale.setScalar(0.003) // Reduced scale
         fbx.position.y = 0
         fbx.rotation.y = Math.PI / 4
 
@@ -117,7 +117,7 @@ export function TrumpModel() {
     )
 
     // Add a ground plane
-    const groundGeometry = new THREE.PlaneGeometry(10, 10)
+    const groundGeometry = new THREE.PlaneGeometry(4, 4)
     const groundMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xeeeeee,
       roughness: 0.8,
