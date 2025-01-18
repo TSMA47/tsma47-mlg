@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { 
   Environment, 
   OrbitControls, 
@@ -14,6 +14,7 @@ import * as THREE from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 
 function Model() {
+  const [model, setModel] = useState<THREE.Group | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -59,7 +60,7 @@ function Model() {
         fbx.scale.set(0.003, 0.003, 0.003)
         fbx.position.set(0, -1, 0)
         fbx.rotation.set(0, Math.PI / 4, 0)
-
+        setModel(fbx)
       },
       (progress) => {
         console.log('Loading progress:', (progress.loaded / progress.total) * 100, '%')
@@ -75,7 +76,7 @@ function Model() {
     )
   }, [toast])
 
-  return null 
+  return model ? <primitive object={model} /> : null
 }
 
 export function TrumpModel() {
