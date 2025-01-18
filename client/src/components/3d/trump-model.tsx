@@ -15,10 +15,13 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
-function Model() {
+interface ModelProps {
+  isSpinning: boolean;
+}
+
+function Model({ isSpinning }: ModelProps) {
   const [model, setModel] = useState<THREE.Group | null>(null)
   const modelRef = useRef<THREE.Group>(null)
-  const [isSpinning, setIsSpinning] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
