@@ -5,7 +5,6 @@ import {
   OrbitControls, 
   AccumulativeShadows,
   RandomizedLight,
-  ContactShadows,
   BakeShadows,
 } from '@react-three/drei'
 import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
@@ -143,20 +142,11 @@ export function TrumpModel() {
             blur={0.5}
           />
 
-          {/* Ground shadows for better grounding */}
-          <ContactShadows
-            position={[0, -1.5, 0]}
-            scale={10}
-            blur={2}
-            far={3}
-            opacity={0.6}
-          />
-
           {/* Accumulative shadows for realism */}
           <AccumulativeShadows
             position={[0, -1.5, 0]}
             scale={10}
-            opacity={0.8}
+            opacity={0.4}
             frames={100}
             temporal
             blend={100}
