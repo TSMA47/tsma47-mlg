@@ -14,16 +14,16 @@ export function TrumpModel() {
 
     // Scene setup
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x1a1a1a) // Dark background to match reference
+    scene.background = new THREE.Color(0x1a1a1a)
 
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
       60,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
-      0.00001, // Much smaller near plane
-      0.1 // Much smaller far plane
+      0.00001,
+      0.1
     )
-    camera.position.set(0, 0.00005, 0.0002) // Microscopic camera position
+    camera.position.set(0, 0.00005, 0.0002)
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({ 
@@ -44,33 +44,76 @@ export function TrumpModel() {
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.05
-    controls.minDistance = 0.0001 // Much smaller min distance
-    controls.maxDistance = 0.0004 // Much smaller max distance
-    controls.target.set(0, 0.00003, 0) // Microscopic target position
+    controls.minDistance = 0.0001
+    controls.maxDistance = 0.0004
+    controls.target.set(0, 0.00003, 0)
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
     scene.add(ambientLight)
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-    directionalLight.position.set(0.0005, 0.0005, 0.0005) // Microscopic light position
+    directionalLight.position.set(0.0005, 0.0005, 0.0005)
     directionalLight.castShadow = true
     directionalLight.shadow.mapSize.width = 2048
     directionalLight.shadow.mapSize.height = 2048
     scene.add(directionalLight)
 
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.3)
-    fillLight.position.set(-0.0005, 0, -0.0005) // Microscopic fill light position
+    fillLight.position.set(-0.0005, 0, -0.0005)
     scene.add(fillLight)
 
-    // Texture loader
+    // Texture loader with error handling
     const textureLoader = new THREE.TextureLoader()
     const loadTexture = (path: string) => {
-      return textureLoader.load(path, 
+      return textureLoader.load(
+        path,
         undefined,
         undefined,
-        (error) => console.error('Error loading texture:', error)
+        (error) => {
+          console.error('Error loading texture:', error)
+          toast({
+            title: "Error",
+            description: `Failed to load texture: ${path}`,
+            variant: "destructive"
+          })
+        }
       )
+    }
+
+    // Materials setup
+    const materials = {
+      metal: new THREE.MeshStandardMaterial({
+        map: loadTexture('/trump-skibidi-scientist-mech/textures/metalwall_baseColor.png'),
+        normalMap: loadTexture('/trump-skibidi-scientist-mech/textures/metal normal.png'),
+        metalness: 0.9,
+        roughness: 0.1,
+        envMapIntensity: 1.0
+      }),
+      body: new THREE.MeshStandardMaterial({
+        map: loadTexture('/trump-skibidi-scientist-mech/textures/Body_D.png'),
+        normalMap: loadTexture('/trump-skibidi-scientist-mech/textures/Body_N.png'),
+        metalness: 0.3,
+        roughness: 0.7
+      }),
+      skin: new THREE.MeshStandardMaterial({
+        map: loadTexture('/trump-skibidi-scientist-mech/textures/trumpskin_albedo.jpeg'),
+        normalMap: loadTexture('/trump-skibidi-scientist-mech/textures/trumpskin_normals.jpeg'),
+        metalness: 0.0,
+        roughness: 0.9
+      }),
+      hair: new THREE.MeshStandardMaterial({
+        map: loadTexture('/trump-skibidi-scientist-mech/textures/trumphair_albedo.jpeg'),
+        normalMap: loadTexture('/trump-skibidi-scientist-mech/textures/trumphair_normals.jpeg'),
+        metalness: 0.1,
+        roughness: 0.8
+      }),
+      mechanic: new THREE.MeshStandardMaterial({
+        map: loadTexture('/trump-skibidi-scientist-mech/textures/mechanic_head_color.jpg'),
+        normalMap: loadTexture('/trump-skibidi-scientist-mech/textures/mechanic_head_normal.jpeg'),
+        metalness: 0.7,
+        roughness: 0.3
+      })
     }
 
     // Load Model
@@ -78,25 +121,28 @@ export function TrumpModel() {
     loader.load(
       '/trump-skibidi-scientist-mech/source/Scientist Trump.fbx',
       (fbx) => {
-        // Scale and position the model
-        fbx.scale.setScalar(0.00000003) // Much much smaller scale
+        fbx.scale.setScalar(0.00000003)
         fbx.position.y = 0
         fbx.rotation.y = Math.PI / 4
 
-        // Apply textures to the model
         fbx.traverse((child) => {
           if (child instanceof THREE.Mesh) {
-            // Enable shadows
             child.castShadow = true
             child.receiveShadow = true
 
-            // Apply basic materials with textures
-            const material = new THREE.MeshPhongMaterial({
-              map: loadTexture('/trump-skibidi-scientist-mech/textures/Body_D.png'),
-              normalMap: loadTexture('/trump-skibidi-scientist-mech/textures/Body_N.png'),
-              shininess: 50
-            })
-            child.material = material
+            // Apply materials based on mesh names
+            const name = child.name.toLowerCase()
+            if (name.includes('metal') || name.includes('mech')) {
+              child.material = materials.metal
+            } else if (name.includes('skin') || name.includes('face')) {
+              child.material = materials.skin
+            } else if (name.includes('hair')) {
+              child.material = materials.hair
+            } else if (name.includes('mechanic')) {
+              child.material = materials.mechanic
+            } else {
+              child.material = materials.body
+            }
           }
         })
 
@@ -117,11 +163,12 @@ export function TrumpModel() {
     )
 
     // Add a ground plane
-    const groundGeometry = new THREE.PlaneGeometry(0.0004, 0.0004) // Microscopic ground plane
+    const groundGeometry = new THREE.PlaneGeometry(0.0004, 0.0004)
     const groundMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0xeeeeee,
-      roughness: 0.8,
-      metalness: 0.2
+      color: 0x111111,
+      roughness: 0.1,
+      metalness: 0.8,
+      envMapIntensity: 1.0
     })
     const ground = new THREE.Mesh(groundGeometry, groundMaterial)
     ground.rotation.x = -Math.PI / 2
