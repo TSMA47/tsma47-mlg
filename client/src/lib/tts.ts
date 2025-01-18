@@ -22,10 +22,10 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
           text,
           model_id: "eleven_monolingual_v1",
           voice_settings: {
-            stability: 0.25, // Lower stability for more expressiveness and characteristic variations
-            similarity_boost: 0.95, // Higher similarity to better match Trump's voice patterns
-            style: 0.85, // Emphasize his characteristic speaking style
-            use_speaker_boost: true, // Enhance voice clarity and presence
+            stability: 0.25, // Lower stability for more expressiveness
+            similarity_boost: 0.95, // Higher similarity to match Trump's voice
+            style: 0.85, // Emphasize characteristic speaking style
+            use_speaker_boost: true,
           },
         }),
       }
@@ -55,6 +55,15 @@ export async function speak(text: string) {
     const audioUrl = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioUrl);
 
+    // Clean up previous audio elements
+    const previousAudio = document.querySelector('.trump-voice-audio');
+    if (previousAudio) {
+      previousAudio.remove();
+    }
+
+    // Add class for cleanup
+    audio.className = 'trump-voice-audio';
+
     // Add error handling for audio playback
     audio.onerror = (e) => {
       console.error("Audio playback error:", e);
@@ -66,6 +75,7 @@ export async function speak(text: string) {
     // Clean up the URL after playing
     audio.onended = () => {
       URL.revokeObjectURL(audioUrl);
+      audio.remove();
     };
   } catch (error) {
     console.error("Failed to generate or play Trump voice:", error);

@@ -27,7 +27,10 @@ export function ChatInterface() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message })
       })
-      if (!response.ok) throw new Error("Failed to send message")
+      if (!response.ok) {
+        const error = await response.text()
+        throw new Error(error || "Failed to send message")
+      }
       return response.json()
     },
     onSuccess: async (data) => {
@@ -49,11 +52,12 @@ export function ChatInterface() {
         }
       }
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive"
+        description: error.message || "Failed to send message. Please try again.",
+        variant: "destructive",
+        duration: 3000
       })
     }
   })
@@ -72,6 +76,7 @@ export function ChatInterface() {
     setIsMuted(!isMuted)
     toast({
       title: !isMuted ? "Voice Muted" : "Voice Unmuted",
+      description: !isMuted ? "Trump's voice responses are now muted" : "Trump's voice responses are now enabled",
       duration: 1500
     })
   }
@@ -80,7 +85,7 @@ export function ChatInterface() {
     <div className="flex flex-col h-[600px] bg-gray-900/95 rounded-lg">
       <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800">
         <span className="text-sm text-gray-400">Chat with Trump</span>
-        {hasVoice && (
+        {hasVoice ? (
           <Button
             variant="ghost"
             size="icon"
@@ -89,8 +94,7 @@ export function ChatInterface() {
           >
             {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
           </Button>
-        )}
-        {!hasVoice && (
+        ) : (
           <div className="flex items-center gap-1 text-xs text-gray-500">
             <VolumeX className="w-3 h-3" />
             <span>Voice disabled</span>
