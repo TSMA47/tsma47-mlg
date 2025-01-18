@@ -1,7 +1,7 @@
 import { useToast } from "@/hooks/use-toast";
 
 async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
-  const VOICE_ID = "TxGEqnHWrfWFTfGW9XjX"; // Premium Trump voice model ID
+  const VOICE_ID = "TxGEqnHWrfWFTfGW9XjX"; // Trump voice model ID
   const API_KEY = import.meta.env.VITE_ELEVEN_LABS_API_KEY;
 
   if (!API_KEY) {
@@ -11,7 +11,7 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
   try {
     console.log("Attempting to generate voice...");
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`,
       {
         method: "POST",
         headers: {
@@ -22,9 +22,9 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
           text,
           model_id: "eleven_multilingual_v2",
           voice_settings: {
-            stability: 0.30, // Lower stability for more expressiveness
-            similarity_boost: 0.95, // Higher similarity to match Trump's voice better
-            style: 1.0, // Emphasize characteristic speaking style
+            stability: 0.35, // Lower stability for more expressiveness
+            similarity_boost: 0.85, // Balance between similarity and naturalness
+            style: 0.65, // Moderate style to maintain Trump's characteristic speaking style
             use_speaker_boost: true // Enhance voice clarity
           },
         }),

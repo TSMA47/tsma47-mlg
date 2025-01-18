@@ -11,8 +11,6 @@ import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
 import { useToast } from "@/hooks/use-toast"
 import * as THREE from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 
 interface ModelProps {
   isSpinning: boolean;
@@ -97,22 +95,8 @@ function Model({ isSpinning }: ModelProps) {
   ) : null
 }
 
-function ControlPanel({ onSpin }: { onSpin: () => void }) {
-  return (
-    <Card className="absolute bottom-4 left-1/2 transform -translate-x-1/2 p-4 flex gap-2">
-      <Button onClick={onSpin} variant="outline">
-        Spin Model
-      </Button>
-    </Card>
-  )
-}
-
 export function TrumpModel() {
-  const [isSpinning, setIsSpinning] = useState(false)
-
-  const handleSpin = () => {
-    setIsSpinning(prev => !prev)
-  }
+  const [isSpinning] = useState(false)
 
   return (
     <div className="w-full h-full relative">
@@ -173,7 +157,7 @@ export function TrumpModel() {
           <BakeShadows />
         </Suspense>
 
-        {/* Camera controls */}
+        {/* Camera controls - hide the buttons but keep the functionality */}
         <OrbitControls 
           minDistance={3}
           maxDistance={15}
@@ -181,6 +165,11 @@ export function TrumpModel() {
           enableDamping
           dampingFactor={0.05}
           rotateSpeed={0.5}
+          makeDefault={true}
+          enablePan={false}
+          enableZoom={true}
+          // Hide the control buttons
+          enableButtons={false}
         />
 
         {/* Three-point lighting setup */}
@@ -202,7 +191,6 @@ export function TrumpModel() {
         />
         <ambientLight intensity={0.3} />
       </Canvas>
-      <ControlPanel onSpin={handleSpin} />
     </div>
   )
 }
