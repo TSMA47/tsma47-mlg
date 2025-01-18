@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* 3D Model Section */}
           <Card className="p-4 h-[600px] relative">
             <TrumpModel />
@@ -18,8 +18,12 @@ export default function Home() {
             <ChatInterface />
           </Card>
         </div>
+
+        {/* Social Links */}
+        <div className="flex justify-center">
+          <SocialLinks />
+        </div>
       </div>
-      <SocialLinks />
     </div>
   )
 }
