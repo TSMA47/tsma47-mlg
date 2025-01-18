@@ -15,7 +15,7 @@ export default function Home() {
           </Card>
 
           {/* Chat Section */}
-          <Card className="p-4 h-[600px] flex flex-col">
+          <Card className="p-4">
             <ChatInterface />
           </Card>
         </div>
