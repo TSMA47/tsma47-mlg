@@ -28,11 +28,9 @@ function Model({ isSpinning }: ModelProps) {
       (fbx) => {
         fbx.traverse((obj: any) => {
           if (obj.isMesh) {
-            // Enable shadows for all meshes
             obj.castShadow = true
             obj.receiveShadow = true
 
-            // Enhance metallic parts with chrome-like finish
             if (obj.name.toLowerCase().includes('metal') || obj.name.toLowerCase().includes('mech')) {
               obj.material.metalness = 0.9
               obj.material.roughness = 0.1
@@ -40,7 +38,6 @@ function Model({ isSpinning }: ModelProps) {
               obj.material.needsUpdate = true
             }
 
-            // Glass or transparent parts
             if (obj.name.toLowerCase().includes('glass') || obj.name.toLowerCase().includes('lens')) {
               obj.material.transparent = true
               obj.material.opacity = 0.9
@@ -50,7 +47,6 @@ function Model({ isSpinning }: ModelProps) {
               obj.material.needsUpdate = true
             }
 
-            // Face and skin materials
             if (obj.name.toLowerCase().includes('face') || obj.name.toLowerCase().includes('skin')) {
               obj.material.metalness = 0.1
               obj.material.roughness = 0.8
@@ -60,7 +56,6 @@ function Model({ isSpinning }: ModelProps) {
           }
         })
 
-        // Add the model to the scene
         fbx.scale.set(0.003, 0.003, 0.003)
         fbx.position.set(0, -1, 0)
         fbx.rotation.set(0, Math.PI / 4, 0)
@@ -80,10 +75,9 @@ function Model({ isSpinning }: ModelProps) {
     )
   }, [toast])
 
-  // Animation loop for spinning
   useFrame((_, delta) => {
     if (isSpinning && modelRef.current) {
-      modelRef.current.rotation.y += delta * 2 // Adjust speed by changing multiplier
+      modelRef.current.rotation.y += delta * 2
     }
   })
 
@@ -97,9 +91,10 @@ function Model({ isSpinning }: ModelProps) {
 
 export function TrumpModel() {
   const [isSpinning] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className="w-full h-full relative">
+    <div ref={containerRef} className="w-full h-full relative">
       <Canvas
         shadows
         camera={{ 
@@ -119,14 +114,12 @@ export function TrumpModel() {
         <Suspense fallback={null}>
           <Model isSpinning={isSpinning} />
 
-          {/* High-quality environment lighting */}
           <Environment
             preset="studio"
             background={false}
             blur={0.5}
           />
 
-          {/* Accumulative shadows for realism */}
           <AccumulativeShadows
             position={[0, -1.5, 0]}
             scale={10}
@@ -144,7 +137,6 @@ export function TrumpModel() {
             />
           </AccumulativeShadows>
 
-          {/* Post-processing effects */}
           <EffectComposer>
             <Bloom
               intensity={1}
@@ -157,7 +149,6 @@ export function TrumpModel() {
           <BakeShadows />
         </Suspense>
 
-        {/* Camera controls - hide the buttons but keep the functionality */}
         <OrbitControls 
           minDistance={3}
           maxDistance={15}
@@ -165,14 +156,12 @@ export function TrumpModel() {
           enableDamping
           dampingFactor={0.05}
           rotateSpeed={0.5}
-          makeDefault={true}
+          makeDefault
           enablePan={false}
           enableZoom={true}
-          // Hide the control buttons
-          enableButtons={false}
+          domElement={containerRef.current || undefined}
         />
 
-        {/* Three-point lighting setup */}
         <directionalLight
           castShadow
           position={[2, 4, 3]}
