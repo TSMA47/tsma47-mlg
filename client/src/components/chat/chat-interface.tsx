@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { MessageList } from "./message-list"
 import { speak } from "@/lib/tts"
-import { Send, VolumeX } from "lucide-react"
+import { Send, VolumeX, Volume2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Message {
@@ -16,6 +16,7 @@ interface Message {
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
+  const [isMuted, setIsMuted] = useState(false)
   const { toast } = useToast()
   const hasVoice = Boolean(import.meta.env.VITE_ELEVEN_LABS_API_KEY)
 
@@ -33,8 +34,8 @@ export function ChatInterface() {
       const newMessage: Message = { role: "assistant", content: data.response }
       setMessages(prev => [...prev, newMessage])
 
-      // Only attempt voice generation if API key is present
-      if (hasVoice) {
+      // Only attempt voice generation if API key is present and not muted
+      if (hasVoice && !isMuted) {
         try {
           await speak(data.response)
         } catch (error: any) {
@@ -67,10 +68,28 @@ export function ChatInterface() {
     setInput("")
   }
 
+  const toggleMute = () => {
+    setIsMuted(!isMuted)
+    toast({
+      title: !isMuted ? "Voice Muted" : "Voice Unmuted",
+      duration: 1500
+    })
+  }
+
   return (
-    <div className="flex flex-col h-[300px] bg-gray-900/95 rounded-lg">
+    <div className="flex flex-col h-[600px] bg-gray-900/95 rounded-lg">
       <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800">
         <span className="text-sm text-gray-400">Chat with Trump</span>
+        {hasVoice && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleMute}
+            className="h-8 w-8 text-gray-400 hover:text-white"
+          >
+            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </Button>
+        )}
         {!hasVoice && (
           <div className="flex items-center gap-1 text-xs text-gray-500">
             <VolumeX className="w-3 h-3" />
@@ -79,7 +98,7 @@ export function ChatInterface() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto">
         <MessageList messages={messages} />
       </div>
 
@@ -90,11 +109,12 @@ export function ChatInterface() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             disabled={chatMutation.isPending}
-            className="bg-gray-800 border-gray-700"
+            className="bg-gray-800 border-gray-700 text-white"
           />
           <Button 
             type="submit" 
             disabled={chatMutation.isPending}
+            className="bg-blue-600 hover:bg-blue-700"
           >
             <Send className="h-4 w-4" />
           </Button>

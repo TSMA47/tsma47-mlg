@@ -20,12 +20,12 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
         },
         body: JSON.stringify({
           text,
-          model_id: "eleven_multilingual_v2",
+          model_id: "eleven_monolingual_v1",
           voice_settings: {
-            stability: 0.35, // Lower stability for more expressiveness
-            similarity_boost: 0.85, // Balance between similarity and naturalness
-            style: 0.65, // Moderate style to maintain Trump's characteristic speaking style
-            use_speaker_boost: true // Enhance voice clarity
+            stability: 0.25, // Lower stability for more expressiveness and characteristic variations
+            similarity_boost: 0.95, // Higher similarity to better match Trump's voice patterns
+            style: 0.85, // Emphasize his characteristic speaking style
+            use_speaker_boost: true, // Enhance voice clarity and presence
           },
         }),
       }
