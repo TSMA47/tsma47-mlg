@@ -1,41 +1,54 @@
-let synth: SpeechSynthesis
+import { useToast } from "@/hooks/use-toast";
 
-// Initialize speech synthesis
-if (typeof window !== "undefined") {
-  synth = window.speechSynthesis
-}
+async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
+  const VOICE_ID = "ErXwobaYiN019PkySvjV"; // Trump voice clone ID in ElevenLabs
 
-export function speak(text: string) {
-  if (!synth) return
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "xi-api-key": import.meta.env.VITE_ELEVEN_LABS_API_KEY,
+      },
+      body: JSON.stringify({
+        text,
+        model_id: "eleven_monolingual_v1",
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75,
+        },
+      }),
+    }
+  );
 
-  // Cancel any ongoing speech
-  synth.cancel()
-
-  const utterance = new SpeechSynthesisUtterance(text)
-
-  // Configure voice settings for Trump-like characteristics
-  utterance.pitch = 0.7 // Lower pitch for Trump's distinctive voice
-  utterance.rate = 0.85  // Slower rate to match Trump's speaking pace
-  utterance.volume = 1.0
-
-  // Try to find a deep male voice
-  const voices = synth.getVoices()
-  const americanVoice = voices.find(
-    voice => 
-      voice.lang === 'en-US' && 
-      voice.name.toLowerCase().includes('male') &&
-      (voice.name.toLowerCase().includes('deep') || voice.name.toLowerCase().includes('low'))
-  )
-
-  if (americanVoice) {
-    utterance.voice = americanVoice
+  if (!response.ok) {
+    throw new Error("Failed to generate voice");
   }
 
-  // Add Trump-like emphasis
-  text = text.replace(/tremendous/gi, 'treMENdous')
-  text = text.replace(/great/gi, 'GREAT')
-  text = text.replace(/huge/gi, 'YUUGE')
+  return await response.arrayBuffer();
+}
 
-  utterance.text = text
-  synth.speak(utterance)
+export async function speak(text: string) {
+  try {
+    const audioData = await generateTrumpVoice(text);
+    const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+
+    await audio.play();
+
+    // Clean up the URL after playing
+    audio.onended = () => {
+      URL.revokeObjectURL(audioUrl);
+    };
+  } catch (error) {
+    console.error("Error generating Trump voice:", error);
+    // Fallback to browser TTS if ElevenLabs fails
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.pitch = 0.7;
+    utterance.rate = 0.85;
+    synth.speak(utterance);
+  }
 }
