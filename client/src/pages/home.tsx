@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card"
 import { TrumpModel } from "@/components/3d/trump-model"
 import { ChatInterface } from "@/components/chat/chat-interface"
-import { SceneControls } from "@/components/3d/scene-controls"
+import { SocialLinks } from "@/components/social/social-links"
 
 export default function Home() {
   return (
@@ -11,7 +11,6 @@ export default function Home() {
           {/* 3D Model Section */}
           <Card className="p-4 h-[600px] relative">
             <TrumpModel />
-            <SceneControls className="absolute bottom-4 right-4" />
           </Card>
 
           {/* Chat Section */}
@@ -20,6 +19,7 @@ export default function Home() {
           </Card>
         </div>
       </div>
+      <SocialLinks />
     </div>
   )
 }
