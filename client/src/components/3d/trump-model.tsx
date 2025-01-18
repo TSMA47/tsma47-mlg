@@ -116,6 +116,11 @@ export function TrumpModel() {
       })
     }
 
+    // Create environment map for reflections
+    const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256)
+    const cubeCamera = new THREE.CubeCamera(0.00001, 0.1, cubeRenderTarget)
+    scene.background = new THREE.Color(0x1a1a1a)
+
     // Load Model
     const loader = new FBXLoader()
     loader.load(
@@ -134,12 +139,17 @@ export function TrumpModel() {
             const name = child.name.toLowerCase()
             if (name.includes('metal') || name.includes('mech')) {
               child.material = materials.metal
+              // Add environment mapping for reflective surfaces
+              child.material.envMap = cubeRenderTarget.texture
+              child.material.envMapIntensity = 1.0
             } else if (name.includes('skin') || name.includes('face')) {
               child.material = materials.skin
             } else if (name.includes('hair')) {
               child.material = materials.hair
             } else if (name.includes('mechanic')) {
               child.material = materials.mechanic
+              child.material.envMap = cubeRenderTarget.texture
+              child.material.envMapIntensity = 0.8
             } else {
               child.material = materials.body
             }
@@ -176,9 +186,12 @@ export function TrumpModel() {
     scene.add(ground)
 
     // Animation Loop
-    let frameId: number
     function animate() {
-      frameId = requestAnimationFrame(animate)
+      requestAnimationFrame(animate)
+
+      // Update environment map for reflections
+      cubeCamera.update(renderer, scene)
+
       controls.update()
       renderer.render(scene, camera)
     }
@@ -197,11 +210,12 @@ export function TrumpModel() {
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize)
-      cancelAnimationFrame(frameId)
       scene.traverse((object) => {
         if (object instanceof THREE.Mesh) {
           object.geometry.dispose()
-          if (object.material instanceof THREE.Material) {
+          if (Array.isArray(object.material)) {
+            object.material.forEach(material => material.dispose())
+          } else if (object.material) {
             object.material.dispose()
           }
         }
