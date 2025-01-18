@@ -1,5 +1,5 @@
-import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { Suspense, useEffect, useState, useRef } from 'react'
 import { 
   Environment, 
   OrbitControls, 
@@ -12,9 +12,13 @@ import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
 import { useToast } from "@/hooks/use-toast"
 import * as THREE from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 
 function Model() {
   const [model, setModel] = useState<THREE.Group | null>(null)
+  const modelRef = useRef<THREE.Group>(null)
+  const [isSpinning, setIsSpinning] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -76,12 +80,40 @@ function Model() {
     )
   }, [toast])
 
-  return model ? <primitive object={model} /> : null
+  // Animation loop for spinning
+  useFrame((_, delta) => {
+    if (isSpinning && modelRef.current) {
+      modelRef.current.rotation.y += delta * 2 // Adjust speed by changing multiplier
+    }
+  })
+
+  return model ? (
+    <primitive 
+      ref={modelRef}
+      object={model}
+    />
+  ) : null
+}
+
+function ControlPanel({ onSpin }: { onSpin: () => void }) {
+  return (
+    <Card className="absolute bottom-4 left-1/2 transform -translate-x-1/2 p-4 flex gap-2">
+      <Button onClick={onSpin} variant="outline">
+        Spin Model
+      </Button>
+    </Card>
+  )
 }
 
 export function TrumpModel() {
+  const [isSpinning, setIsSpinning] = useState(false)
+
+  const handleSpin = () => {
+    setIsSpinning(prev => !prev)
+  }
+
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
       <Canvas
         shadows
         camera={{ 
@@ -99,7 +131,7 @@ export function TrumpModel() {
         <color attach="background" args={[0x1a1a1a]} />
 
         <Suspense fallback={null}>
-          <Model />
+          <Model isSpinning={isSpinning} />
 
           {/* High-quality environment lighting */}
           <Environment
@@ -177,6 +209,7 @@ export function TrumpModel() {
         />
         <ambientLight intensity={0.3} />
       </Canvas>
+      <ControlPanel onSpin={handleSpin} />
     </div>
   )
 }
