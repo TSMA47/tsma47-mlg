@@ -9,6 +9,7 @@ import {
 } from '@react-three/drei'
 import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing'
 import { useToast } from "@/hooks/use-toast"
+import { SocialLinks } from "@/components/social/social-links"
 import * as THREE from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 
@@ -95,6 +96,11 @@ export function TrumpModel() {
 
   return (
     <div ref={containerRef} className="w-full h-full relative">
+      {/* Social Links Overlay */}
+      <div className="absolute top-0 right-0 z-10 p-2">
+        <SocialLinks />
+      </div>
+
       <Canvas
         shadows
         camera={{ 
