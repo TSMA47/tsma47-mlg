@@ -9,9 +9,9 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
   }
 
   try {
-    console.log("Attempting to generate voice...");
+    console.log("Attempting to generate voice with text:", text);
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
       {
         method: "POST",
         headers: {
@@ -22,9 +22,9 @@ async function generateTrumpVoice(text: string): Promise<ArrayBuffer> {
           text,
           model_id: "eleven_monolingual_v1",
           voice_settings: {
-            stability: 0.25, // Lower stability for more expressiveness
-            similarity_boost: 0.95, // Higher similarity to match Trump's voice
-            style: 0.85, // Emphasize characteristic speaking style
+            stability: 0.35,
+            similarity_boost: 0.75,
+            style: 0.35,
             use_speaker_boost: true,
           },
         }),
@@ -49,8 +49,9 @@ export async function speak(text: string) {
   try {
     if (!text.trim()) return;
 
-    console.log("Starting voice generation...");
+    console.log("Starting voice generation for text:", text);
     const audioData = await generateTrumpVoice(text);
+    console.log("Received audio data, creating blob...");
     const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
     const audioUrl = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioUrl);
@@ -58,6 +59,7 @@ export async function speak(text: string) {
     // Clean up previous audio elements
     const previousAudio = document.querySelector('.trump-voice-audio');
     if (previousAudio) {
+      (previousAudio as HTMLAudioElement).pause();
       previousAudio.remove();
     }
 
@@ -70,6 +72,7 @@ export async function speak(text: string) {
       throw new Error("Failed to play generated audio");
     };
 
+    console.log("Playing generated audio...");
     await audio.play();
 
     // Clean up the URL after playing
