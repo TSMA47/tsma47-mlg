@@ -4,7 +4,7 @@ import { FileText } from "lucide-react"
 
 export function SocialLinks() {
   return (
-    <div className="flex gap-1 bg-gray-900/70 backdrop-blur-sm p-1.5 rounded-lg border border-gray-800/50 relative z-50">
+    <div className="flex gap-1 bg-gray-900/70 backdrop-blur-sm p-1.5 rounded-lg border border-gray-800/50 pointer-events-auto">
       <Button
         variant="ghost"
         size="icon"

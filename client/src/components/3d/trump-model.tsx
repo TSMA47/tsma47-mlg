@@ -203,94 +203,96 @@ export function TrumpModel() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div ref={containerRef} className="w-full h-full relative">
-      <div className="absolute top-0 right-0 z-50 p-2"> {/* Increased z-index */}
+    <>
+      <div className="absolute top-4 right-4 z-[100]">
         <SocialLinks />
       </div>
 
-      <Canvas
-        shadows
-        camera={{ 
-          position: [4, 2, 5], 
-          fov: 45,
-          near: 0.1,
-          far: 100 
-        }}
-        gl={{ 
-          antialias: false,  // Disable antialiasing for better performance
-          alpha: true,
-          powerPreference: "high-performance",
-          preserveDrawingBuffer: true,
-          logarithmicDepthBuffer: true
-        }}
-        performance={{ min: 0.5 }}  // Allow frame rate to drop for better performance
-        dpr={[1, 2]}  // Limit pixel ratio for better performance
-      >
-        <color attach="background" args={[0x1a1a1a]} />
+      <div ref={containerRef} className="w-full h-full relative">
+        <Canvas
+          shadows
+          camera={{ 
+            position: [4, 2, 5], 
+            fov: 45,
+            near: 0.1,
+            far: 100 
+          }}
+          gl={{ 
+            antialias: false,
+            alpha: true,
+            powerPreference: "high-performance",
+            preserveDrawingBuffer: true,
+            logarithmicDepthBuffer: true
+          }}
+          style={{ position: 'relative', zIndex: 1 }}
+          className="pointer-events-auto"
+        >
+          <color attach="background" args={[0x1a1a1a]} />
 
-        <Suspense fallback={<LoadingScreen />}>
-          <Model isSpinning={isSpinning} />
-          <MLGOverlay />
+          <Suspense fallback={<LoadingScreen />}>
+            <Model isSpinning={isSpinning} />
+            <MLGOverlay />
 
-          <Environment
-            preset="studio"
-            background={false}
-            blur={0.5}
+            <Environment
+              preset="studio"
+              background={false}
+              blur={0.5}
+            />
+
+            <AccumulativeShadows
+              position={[0, -1.5, 0]}
+              scale={10}
+              opacity={0.4}
+              frames={100}
+              temporal
+              blend={100}
+            >
+              <RandomizedLight
+                amount={8}
+                position={[5, 5, -2]}
+                intensity={1}
+                ambient={0.5}
+                bias={0.001}
+              />
+            </AccumulativeShadows>
+
+            <EffectComposer>
+              <Bloom
+                intensity={1}
+                luminanceThreshold={0.8}
+                luminanceSmoothing={0.9}
+              />
+              <SMAA />
+            </EffectComposer>
+
+            <BakeShadows />
+          </Suspense>
+
+          <OrbitControls 
+            minDistance={3}
+            maxDistance={15}
+            target={[0, 0, 0]}
+            enableDamping
+            dampingFactor={0.05}
+            rotateSpeed={0.5}
+            makeDefault
+            enablePan={false}
+            enableZoom={true}
           />
 
-          <AccumulativeShadows
-            position={[0, -1.5, 0]}
-            scale={10}
-            opacity={0.4}
-            frames={100}
-            temporal
-            blend={100}
-          >
-            <RandomizedLight
-              amount={8}
-              position={[5, 5, -2]}
-              intensity={1}
-              ambient={0.5}
-              bias={0.001}
-            />
-          </AccumulativeShadows>
-
-          <EffectComposer>
-            <Bloom
-              intensity={1}
-              luminanceThreshold={0.8}
-              luminanceSmoothing={0.9}
-            />
-            <SMAA />
-          </EffectComposer>
-
-          <BakeShadows />
-        </Suspense>
-
-        <OrbitControls 
-          minDistance={3}
-          maxDistance={15}
-          target={[0, 0, 0]}
-          enableDamping
-          dampingFactor={0.05}
-          rotateSpeed={0.5}
-          makeDefault
-          enablePan={false}
-          enableZoom={true}
-        />
-
-        <directionalLight
-          castShadow
-          position={[2, 4, 3]}
-          intensity={2}
-          shadow-mapSize={[1024, 1024]}
-        />
-        <directionalLight
-          position={[-3, 2, -2]}
-          intensity={1}
-        />
-        <ambientLight intensity={0.3} />
-      </Canvas>
-    </div>
+          <directionalLight
+            castShadow
+            position={[2, 4, 3]}
+            intensity={2}
+            shadow-mapSize={[1024, 1024]}
+          />
+          <directionalLight
+            position={[-3, 2, -2]}
+            intensity={1}
+          />
+          <ambientLight intensity={0.3} />
+        </Canvas>
+      </div>
+    </>
   )
 }
