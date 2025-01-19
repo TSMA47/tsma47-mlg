@@ -33,6 +33,11 @@ yarn-error.log*
 .nuxt
 .vite
 
+# Replit specific
+.replit
+replit.nix
+.config
+
 # Misc
 *.log
 *.tar.gz
