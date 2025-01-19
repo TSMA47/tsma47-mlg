@@ -17,7 +17,7 @@ export function SocialLinks() {
         variant="ghost"
         size="icon"
         className="h-7 w-7 text-white/80 hover:text-white hover:bg-white/10"
-        onClick={() => window.open('https://github.com', '_blank')}
+        onClick={() => window.open('https://github.com/tsma47/tsma47-mlg', '_blank')}
       >
         <SiGithub className="h-4 w-4" />
       </Button>
@@ -33,7 +33,7 @@ export function SocialLinks() {
         variant="ghost"
         size="icon"
         className="h-7 w-7 text-white/80 hover:text-white hover:bg-white/10"
-        onClick={() => window.open('https://x.com', '_blank')}
+        onClick={() => window.open('https://x.com/TSMA47', '_blank')}
       >
         <SiX className="h-4 w-4" />
       </Button>
