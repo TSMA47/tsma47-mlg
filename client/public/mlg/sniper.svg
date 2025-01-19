@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <path d="M500 200L400 150L300 175L200 150L100 175L12 150V250L100 275L200 250L300 275L400 250L500 275V200Z" fill="#1a1a1a" stroke="#00ff00" stroke-width="4"/>
+  <circle cx="450" cy="225" r="20" fill="#ff0000"/>
+  <path d="M0 225H512" stroke="#ff0000" stroke-width="2" stroke-dasharray="10,10"/>
+  <path d="M256 0V512" stroke="#ff0000" stroke-width="2" stroke-dasharray="10,10"/>
+</svg>
