@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import { SocialLinks } from "@/components/social/social-links"
 import * as THREE from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
-import { Cannabis, TrendingUp, Crown } from 'lucide-react'
+import { Cannabis, TrendingUp } from 'lucide-react'
 
 // Extend THREE.Group for R3F
 extend({ Group: THREE.Group })
@@ -39,15 +39,12 @@ function MLGOverlay() {
         <div className="absolute top-4 left-4">
           <Cannabis className="w-8 h-8 text-green-500 animate-spin" />
         </div>
-        <div className="absolute top-4 right-4">
-          <Crown className="w-8 h-8 text-yellow-400 animate-bounce" />
-        </div>
 
         {/* Trump Memecoin Chart */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 p-2 rounded-lg backdrop-blur-sm">
           <div className="flex items-center gap-1 text-green-400 text-sm">
             <TrendingUp className="w-4 h-4" />
-            <span className="font-bold">TRUMP 🚀</span>
+            <span className="font-bold">TSMA47 🚀</span>
           </div>
           <div className="w-32 h-16 mt-1 border border-green-500/30 rounded relative overflow-hidden">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -207,7 +204,7 @@ export function TrumpModel() {
 
   return (
     <div ref={containerRef} className="w-full h-full relative">
-      <div className="absolute top-0 right-0 z-10 p-2">
+      <div className="absolute top-0 right-0 z-50 p-2"> {/* Increased z-index */}
         <SocialLinks />
       </div>
 
